@@ -5,6 +5,8 @@ use bevy::math::{vec2, vec3, VectorSpace};
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
 use bevy::window::PrimaryWindow;
+use bevy_pancam::{PanCam, PanCamPlugin};
+use rand::Rng;
 
 // Window
 const WW: f32 = 1200.0;
@@ -17,6 +19,11 @@ const TILE_WIDTH: u32 = 16;
 const TILE_HEIGHT: u32 = 16;
 const SPRITE_SHEET_WIDTH: u32 = 4;
 const SPRITE_SHEET_HEIGHT: u32 = 4;
+
+// World
+const NUM_WORLD_DECORATIONS: usize = 1000;
+const WORLD_WIDTH: f32 = 3000.0;
+const WORLD_HEIGHT: f32 = 2500.0;
 
 // Player
 const PLAYER_SPEED: f32 = 2.0;
@@ -78,13 +85,18 @@ fn main() {
         .init_state::<GameState>()
         .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
         .insert_resource(Msaa::Off)
+        // External Plugins
+        .add_plugins(PanCamPlugin::default())
         // Custom Resources
         .insert_resource(GlobalTextureAtlasHandle(None))
         .insert_resource(GlobalSpriteSheetHandle(None))
         .insert_resource(CursorPosition(None))
         //Systems
         .add_systems(OnEnter(GameState::Loading), load_assets)
-        .add_systems(OnEnter(GameState::GameInit), (setup_camera, init_world))
+        .add_systems(
+            OnEnter(GameState::GameInit),
+            (setup_camera, init_world, spawn_world_decorations),
+        )
         .add_systems(
             Update,
             (
@@ -93,6 +105,7 @@ fn main() {
                 update_cursor_position,
                 handle_weapon_input,
                 update_bullets,
+                camera_follow_player,
             )
                 .run_if(in_state(GameState::InGame)),
         )
@@ -123,7 +136,9 @@ fn load_assets(
 }
 
 fn setup_camera(mut commands: Commands) {
-    commands.spawn(Camera2dBundle::default());
+    commands
+        .spawn(Camera2dBundle::default())
+        .insert(PanCam::default());
 }
 
 fn init_world(
@@ -178,6 +193,45 @@ pub fn close_on_esc(
     }
 }
 
+fn spawn_world_decorations(
+    mut commands: Commands,
+    texture_atlas: Res<GlobalTextureAtlasHandle>,
+    image_handle: Res<GlobalSpriteSheetHandle>,
+) {
+    let mut rng = rand::thread_rng();
+    for _ in 0..NUM_WORLD_DECORATIONS {
+        let x = rng.gen_range(-WORLD_WIDTH..WORLD_WIDTH);
+        let y = rng.gen_range(-WORLD_HEIGHT..WORLD_HEIGHT);
+        commands.spawn((
+            SpriteBundle {
+                texture: image_handle.0.clone().unwrap(),
+                transform: Transform::from_translation(vec3(x, y, 0.0))
+                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                ..default()
+            },
+            TextureAtlas {
+                layout: texture_atlas.0.clone().unwrap(),
+                index: rng.gen_range(4..=5),
+            },
+        ));
+    }
+}
+
+fn camera_follow_player(
+    player_query: Query<&Transform, With<Player>>,
+    mut camera_query: Query<&mut Transform, (With<Camera>, Without<Player>)>,
+) {
+    if camera_query.is_empty() || player_query.is_empty() {
+        return;
+    }
+
+    let mut camera_transform = camera_query.single_mut();
+    let player_transform = player_query.single().translation;
+    let (x, y) = (player_transform.x, player_transform.y);
+
+    camera_transform.translation = camera_transform.translation.lerp(vec3(x, y, 0.0), 0.1);
+}
+
 fn handle_player_input(
     mut player_query: Query<&mut Transform, With<Player>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -211,6 +265,7 @@ fn handle_player_input(
     delta = delta.normalize_or_zero();
 
     transform.translation += vec3(delta.x, delta.y, 0.0) * PLAYER_SPEED;
+    transform.translation.z = 10.0;
 }
 
 fn handle_weapon_input(
