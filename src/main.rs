@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::math::{vec2, vec3};
+use bevy::math::{vec2, vec3, VectorSpace};
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
 use bevy::window::PrimaryWindow;
@@ -24,8 +24,9 @@ const PLAYER_SPEED: f32 = 2.0;
 // Colors
 const BG_COLOR: (f32, f32, f32) = (0.773, 0.8, 0.723);
 
-// Wepaon
+// Weapon
 const BULLET_SPAWN_INTERVAL: f32 = 0.1;
+const BULLET_SPEED: f32 = 8.0;
 
 // Resources
 #[derive(Resource)]
@@ -48,6 +49,8 @@ struct Weapon;
 struct WeaponTimer(Stopwatch);
 #[derive(Component)]
 struct Bullet;
+#[derive(Component)]
+struct BulletDirection(Vec3);
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 enum GameState {
@@ -89,6 +92,7 @@ fn main() {
                 update_weapon_transform,
                 update_cursor_position,
                 handle_weapon_input,
+                update_bullets,
             )
                 .run_if(in_state(GameState::InGame)),
         )
@@ -229,6 +233,7 @@ fn handle_weapon_input(
         return;
     }
 
+    let bullet_direction = weapon_transform.local_x();
     if weapon_timer.0.elapsed_secs() >= BULLET_SPAWN_INTERVAL {
         weapon_timer.0.reset();
 
@@ -244,6 +249,7 @@ fn handle_weapon_input(
                 index: 3,
             },
             Bullet,
+            BulletDirection(*bullet_direction),
         ));
     }
 }
@@ -263,6 +269,17 @@ fn update_cursor_position(
         .cursor_position()
         .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.origin.truncate());
+}
+
+fn update_bullets(mut bullet_query: Query<(&mut Transform, &BulletDirection), With<Bullet>>) {
+    if bullet_query.is_empty() {
+        return;
+    }
+
+    for (mut transform, direction) in bullet_query.iter_mut() {
+        transform.translation += direction.0.normalize() * Vec3::splat(BULLET_SPEED);
+        transform.translation.z += 10.0;
+    }
 }
 
 fn update_weapon_transform(
