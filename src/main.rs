@@ -5,6 +5,7 @@ use bullethell::*;
 use camera::FollowCameraPlugin;
 use collision::CollisionPlugin;
 use enemy::EnemyPlugin;
+use gui::GuiPlugin;
 use player::PlayerPlugin;
 use state::GameState;
 use weapon::WeaponPlugin;
@@ -29,6 +30,7 @@ fn main() {
         .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
         .insert_resource(Msaa::Off)
         .add_plugins(FollowCameraPlugin)
+        .add_plugins(GuiPlugin)
         .add_plugins(WeaponPlugin)
         .add_plugins(AnimationPlugin)
         .add_plugins(PlayerPlugin)
