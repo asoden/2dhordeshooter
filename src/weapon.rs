@@ -96,7 +96,7 @@ fn handle_weapon_input(
             },
             TextureAtlas {
                 layout: handle.layout.clone().unwrap(),
-                index: 3,
+                index: 15,
             },
             Bullet,
             BulletDirection(*bullet_direction),

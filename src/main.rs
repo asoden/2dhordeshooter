@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use bullethell::*;
+use animation::AnimationPlugin;
 use camera::FollowCameraPlugin;
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
@@ -28,6 +29,7 @@ fn main() {
         .insert_resource(Msaa::Off)
         .add_plugins(FollowCameraPlugin)
         .add_plugins(WeaponPlugin)
+        .add_plugins(AnimationPlugin)
         .add_plugins(PlayerPlugin)
         .add_plugins(ResourcesPlugin)
         .add_plugins(WorldPlugin)
