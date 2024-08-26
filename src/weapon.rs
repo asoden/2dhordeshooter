@@ -1,8 +1,10 @@
 use std::f32::consts::PI;
+use std::time::Instant;
 
 use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
+use rand::Rng;
 
 use crate::player::Player;
 use crate::state::GameState;
@@ -16,7 +18,9 @@ pub struct Weapon;
 #[derive(Component)]
 pub struct WeaponTimer(pub Stopwatch);
 #[derive(Component)]
-struct Bullet;
+pub struct Bullet;
+#[derive(Component)]
+pub struct SpawnInstant(pub Instant);
 #[derive(Component)]
 struct BulletDirection(Vec3);
 
@@ -24,9 +28,25 @@ impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (update_weapon_transform, update_bullets, handle_weapon_input)
+            (
+                update_weapon_transform,
+                update_bullets,
+                handle_weapon_input,
+                despawn_old_bullets,
+            )
                 .run_if(in_state(GameState::InGame)),
         );
+    }
+}
+
+fn despawn_old_bullets(
+    mut commands: Commands,
+    bullet_query: Query<(&SpawnInstant, Entity), With<Bullet>>,
+) {
+    for (instant, entity) in bullet_query.iter() {
+        if instant.0.elapsed().as_secs_f32() > BULLET_TIME_SECS {
+            commands.entity(entity).despawn();
+        }
     }
 }
 
@@ -83,24 +103,33 @@ fn handle_weapon_input(
         return;
     }
 
+    let mut rng = rand::thread_rng();
     let bullet_direction = weapon_transform.local_x();
     if weapon_timer.0.elapsed_secs() >= BULLET_SPAWN_INTERVAL {
         weapon_timer.0.reset();
 
-        commands.spawn((
-            SpriteBundle {
-                texture: handle.image.clone().unwrap(),
-                transform: Transform::from_translation(vec3(weapon_pos.x, weapon_pos.y, 1.0))
-                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
-                ..default()
-            },
-            TextureAtlas {
-                layout: handle.layout.clone().unwrap(),
-                index: 15,
-            },
-            Bullet,
-            BulletDirection(*bullet_direction),
-        ));
+        for _ in 0..NUM_BULLETS_PER_SHOT {
+            let dir = vec3(
+                bullet_direction.x + rng.gen_range(-0.5..0.5),
+                bullet_direction.y + rng.gen_range(-0.5..0.5),
+                bullet_direction.z,
+            );
+            commands.spawn((
+                SpriteBundle {
+                    texture: handle.image.clone().unwrap(),
+                    transform: Transform::from_translation(vec3(weapon_pos.x, weapon_pos.y, 1.0))
+                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                    ..default()
+                },
+                TextureAtlas {
+                    layout: handle.layout.clone().unwrap(),
+                    index: 15,
+                },
+                Bullet,
+                BulletDirection(dir),
+                SpawnInstant(Instant::now()),
+            ));
+        }
     }
 }
 
@@ -111,6 +140,6 @@ fn update_bullets(mut bullet_query: Query<(&mut Transform, &BulletDirection), Wi
 
     for (mut transform, direction) in bullet_query.iter_mut() {
         transform.translation += direction.0.normalize() * Vec3::splat(BULLET_SPEED);
-        transform.translation.z += 10.0;
+        transform.translation.z = 10.0;
     }
 }

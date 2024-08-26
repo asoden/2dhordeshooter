@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::time::Duration;
 
 use animation::AnimationTimer;
@@ -10,7 +11,9 @@ use crate::state::GameState;
 use crate::*;
 
 #[derive(Component)]
-pub struct Enemy;
+pub struct Enemy {
+    pub health: f32,
+}
 
 pub struct EnemyPlugin;
 
@@ -21,9 +24,22 @@ impl Plugin for EnemyPlugin {
             (
                 spawn_enemies.run_if(on_timer(Duration::from_secs_f32(ENEMY_SPAWN_INTERVAL))),
                 update_enemy_transform,
+                despawn_dead_enemies,
             )
                 .run_if(in_state(GameState::InGame)),
         );
+    }
+}
+
+fn despawn_dead_enemies(mut commands: Commands, enemy_query: Query<(&Enemy, Entity), With<Enemy>>) {
+    if enemy_query.is_empty() {
+        return;
+    }
+
+    for (enemy, entity) in enemy_query.iter() {
+        if enemy.health <= 0.0 {
+            commands.entity(entity).despawn();
+        }
     }
 }
 
@@ -49,17 +65,15 @@ fn spawn_enemies(
     enemy_query: Query<&Transform, (With<Enemy>, Without<Player>)>,
 ) {
     let num_enemies = enemy_query.iter().len();
-    let enemy_spawn_count = (MAX_NUM_ENEMIES - num_enemies).min(10);
+    let enemy_spawn_count = (MAX_NUM_ENEMIES - num_enemies).min(SPAWN_RATE_PER_SECOND);
 
     if num_enemies >= MAX_NUM_ENEMIES || player_query.is_empty() {
         return;
     }
 
     let player_pos = player_query.single().translation.truncate();
-    let mut rng = rand::thread_rng();
     for _ in 0..enemy_spawn_count {
-        let x = rng.gen_range(-WORLD_WIDTH..WORLD_WIDTH);
-        let y = rng.gen_range(-WORLD_HEIGHT..WORLD_HEIGHT);
+        let (x, y) = get_random_position_around(player_pos);
         commands.spawn((
             SpriteBundle {
                 texture: handle.image.clone().unwrap(),
@@ -72,7 +86,29 @@ fn spawn_enemies(
                 index: 8,
             },
             AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
-            Enemy,
+            Enemy::default(),
         ));
+    }
+}
+
+fn get_random_position_around(pos: Vec2) -> (f32, f32) {
+    let mut rng = rand::thread_rng();
+    let angle = rng.gen_range(0.0..PI * 2.0);
+    let dist = rng.gen_range(100.0..2000.0);
+
+    let offset_x = angle.cos() * dist;
+    let offset_y = angle.sin() * dist;
+
+    let random_x = pos.x + offset_x;
+    let random_y = pos.y + offset_y;
+
+    (random_x, random_y)
+}
+
+impl Default for Enemy {
+    fn default() -> Self {
+        Self {
+            health: ENEMEY_HEALTH,
+        }
     }
 }

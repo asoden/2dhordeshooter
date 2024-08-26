@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use animation::AnimationPlugin;
 use bullethell::*;
 use camera::FollowCameraPlugin;
+use collision::CollisionPlugin;
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
 use state::GameState;
@@ -34,6 +35,7 @@ fn main() {
         .add_plugins(ResourcesPlugin)
         .add_plugins(WorldPlugin)
         .add_plugins(EnemyPlugin)
+        .add_plugins(CollisionPlugin)
         .add_systems(Update, close_on_esc)
         .run();
 }
