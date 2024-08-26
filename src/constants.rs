@@ -18,6 +18,11 @@ pub const WORLD_HEIGHT: f32 = 2500.0;
 // Player
 pub const PLAYER_SPEED: f32 = 2.0;
 
+// Enemy
+pub const MAX_NUM_ENEMIES: usize = 500;
+pub const ENEMY_SPAWN_INTERVAL: f32 = 1.0;
+pub const ENEMEY_SPEED: f32 = 1.0;
+
 // Colors
 pub const BG_COLOR: (f32, f32, f32) = (0.773, 0.8, 0.723);
 
