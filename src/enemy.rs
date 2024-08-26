@@ -9,7 +9,7 @@ use crate::state::GameState;
 use crate::*;
 
 #[derive(Component)]
-struct Enemy;
+pub struct Enemy;
 
 pub struct EnemyPlugin;
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-use bullethell::*;
 use animation::AnimationPlugin;
+use bullethell::*;
 use camera::FollowCameraPlugin;
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;

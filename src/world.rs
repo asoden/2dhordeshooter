@@ -4,7 +4,7 @@ use rand::Rng;
 use weapon::{Weapon, WeaponTimer};
 
 use crate::*;
-use player::Player;
+use player::{Player, PlayerState};
 use state::GameState;
 
 pub struct WorldPlugin;
@@ -33,8 +33,9 @@ fn init_world(
             layout: handle.layout.clone().unwrap(),
             index: 0,
         },
-        AnimationTimer(Timer::from_seconds(1.0, TimerMode::Repeating)),
+        AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
         Player,
+        PlayerState::default(),
     ));
 
     commands.spawn((
