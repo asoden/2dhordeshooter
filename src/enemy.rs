@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use animation::AnimationTimer;
 use bevy::math::vec3;
 use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::Rng;
@@ -70,6 +71,7 @@ fn spawn_enemies(
                 layout: handle.layout.clone().unwrap(),
                 index: 8,
             },
+            AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
             Enemy,
         ));
     }

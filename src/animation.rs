@@ -18,6 +18,7 @@ impl Plugin for AnimationPlugin {
             (
                 animation_timer_tick,
                 animate_player,
+                animate_enemy,
                 flip_player_sprite_x,
                 flip_weapon_sprite_y,
                 flip_enemy_sprite_x,
@@ -50,6 +51,18 @@ fn animate_player(
             PlayerState::Moving => 4,
         };
         atlas.index = base_sprite_index + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+    }
+}
+
+fn animate_enemy(mut enemy_query: Query<(&mut TextureAtlas, &AnimationTimer), With<Enemy>>) {
+    if enemy_query.is_empty() {
+        return;
+    }
+
+    for (mut atlas, timer) in enemy_query.iter_mut() {
+        if timer.just_finished() {
+            atlas.index = 8 + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+        }
     }
 }
 
