@@ -5,6 +5,7 @@ use bevy::time::common_conditions::on_timer;
 use kd_tree::{KdPoint, KdTree};
 
 use crate::enemy::Enemy;
+use crate::player::{Player, PlayerEnemyCollisionEvent};
 use crate::state::GameState;
 use crate::weapon::Bullet;
 use crate::{BULLET_DAMAGE, KD_TREE_REFRESH_RATE};
@@ -26,11 +27,28 @@ impl Plugin for CollisionPlugin {
             Update,
             (
                 handle_enemy_bullet_collision,
+                handle_enemy_player_collision,
                 update_enemy_dk_tree
                     .run_if(on_timer(Duration::from_secs_f32(KD_TREE_REFRESH_RATE))),
             )
                 .run_if(in_state(GameState::InGame)),
         );
+    }
+}
+
+fn handle_enemy_player_collision(
+    player_query: Query<&Transform, With<Player>>,
+    tree: Res<EnemyKdTree>,
+    mut ew: EventWriter<PlayerEnemyCollisionEvent>,
+) {
+    if player_query.is_empty() {
+        return;
+    }
+
+    let player_pos = player_query.single().translation;
+    let enemies = tree.0.within_radius(&[player_pos.x, player_pos.y], 50.0);
+    for _ in enemies.iter() {
+        ew.send(PlayerEnemyCollisionEvent);
     }
 }
 

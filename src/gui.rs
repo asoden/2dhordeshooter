@@ -4,7 +4,9 @@ use bevy::{
 };
 
 use crate::enemy::Enemy;
+use crate::player::{Health, Player};
 use crate::state::GameState;
+use crate::world::GameEntity;
 
 pub struct GuiPlugin;
 
@@ -18,7 +20,10 @@ impl Plugin for GuiPlugin {
         app.add_plugins(FrameTimeDiagnosticsPlugin)
             .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
             .add_systems(OnExit(GameState::MainMenu), despawn_main_menu)
-            .add_systems(Update, handle_main_menu_buttons.run_if(in_state(GameState::MainMenu)))
+            .add_systems(
+                Update,
+                handle_main_menu_buttons.run_if(in_state(GameState::MainMenu)),
+            )
             .add_systems(OnEnter(GameState::GameInit), spawn_debug_text)
             .add_systems(
                 Update,
@@ -78,6 +83,7 @@ fn spawn_debug_text(mut commands: Commands) {
             },
         ),
         DebugText,
+        GameEntity,
     ));
 }
 
@@ -85,16 +91,19 @@ fn update_debug_text(
     mut query: Query<&mut Text, With<DebugText>>,
     diagnostics: Res<DiagnosticsStore>,
     enemy_query: Query<(), With<Enemy>>,
+    player_query: Query<&Health, With<Player>>,
 ) {
     if query.is_empty() {
         return;
     }
 
     let num_enemies = enemy_query.iter().count();
+    let player_health = player_query.single().0;
     let mut text = query.single_mut();
     if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.smoothed() {
-            text.sections[0].value = format!("FPS:{value:.2}\nEnemies:{num_enemies}");
+            text.sections[0].value =
+                format!("FPS:{value:.2}\nEnemies:{num_enemies}\n{player_health}");
         }
     }
 }

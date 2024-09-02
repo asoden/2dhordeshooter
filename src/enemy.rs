@@ -5,6 +5,7 @@ use animation::AnimationTimer;
 use bevy::math::vec3;
 use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::Rng;
+use world::GameEntity;
 
 use crate::player::Player;
 use crate::state::GameState;
@@ -87,6 +88,7 @@ fn spawn_enemies(
             },
             AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
             Enemy::default(),
+            GameEntity,
         ));
     }
 }
@@ -94,7 +96,7 @@ fn spawn_enemies(
 fn get_random_position_around(pos: Vec2) -> (f32, f32) {
     let mut rng = rand::thread_rng();
     let angle = rng.gen_range(0.0..PI * 2.0);
-    let dist = rng.gen_range(100.0..2000.0);
+    let dist = rng.gen_range(1000.0..2000.0);
 
     let offset_x = angle.cos() * dist;
     let offset_y = angle.sin() * dist;

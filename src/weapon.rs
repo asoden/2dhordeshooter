@@ -8,6 +8,7 @@ use rand::Rng;
 
 use crate::player::Player;
 use crate::state::GameState;
+use crate::world::GameEntity;
 use crate::*;
 
 pub struct WeaponPlugin;
@@ -128,6 +129,7 @@ fn handle_weapon_input(
                 Bullet,
                 BulletDirection(dir),
                 SpawnInstant(Instant::now()),
+                GameEntity,
             ));
         }
     }
