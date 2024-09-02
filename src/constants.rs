@@ -20,17 +20,20 @@ pub const PLAYER_SPEED: f32 = 2.0;
 
 // Enemy
 pub const MAX_NUM_ENEMIES: usize = 100000;
-pub const SPAWN_RATE_PER_SECOND: usize = 100;
+pub const SPAWN_RATE_PER_SECOND: usize = 1000;
 pub const ENEMEY_HEALTH: f32 = 100.0;
 pub const ENEMY_SPAWN_INTERVAL: f32 = 1.0;
 pub const ENEMEY_SPEED: f32 = 1.0;
+
+// Kd-tree
+pub const KD_TREE_REFRESH_RATE: f32 = 0.2;
 
 // Colors
 pub const BG_COLOR: (f32, f32, f32) = (0.773, 0.8, 0.723);
 
 // Weapon
 pub const BULLET_SPAWN_INTERVAL: f32 = 0.1;
-pub const BULLET_SPEED: f32 = 8.0;
+pub const BULLET_SPEED: f32 = 15.0;
 pub const BULLET_DAMAGE: f32 = 100.0;
-pub const BULLET_TIME_SECS: f32 = 2.0;
-pub const NUM_BULLETS_PER_SHOT: usize = 3;
+pub const BULLET_TIME_SECS: f32 = 0.5;
+pub const NUM_BULLETS_PER_SHOT: usize = 40;
