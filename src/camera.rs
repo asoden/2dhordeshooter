@@ -17,12 +17,10 @@ impl Plugin for FollowCameraPlugin {
 }
 
 fn setup_camera(mut commands: Commands) {
-    commands
-        .spawn(Camera2dBundle::default())
-        .insert(PanCam {
-            grab_buttons: vec![],
-            ..default()
-        });
+    commands.spawn(Camera2dBundle::default()).insert(PanCam {
+        grab_buttons: vec![],
+        ..default()
+    });
 }
 
 fn camera_follow_player(
