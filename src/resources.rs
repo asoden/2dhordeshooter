@@ -12,12 +12,18 @@ pub struct GlobalTextureAtlas {
     pub image: Option<Handle<Image>>,
 }
 
+#[derive(Resource, Default)]
+pub struct GlobalAudioSource{
+    pub weapon_effect: Option<Handle<AudioSource>>
+}
+
 #[derive(Resource, Debug)]
 pub struct CursorPosition(pub Option<Vec2>);
 
 impl Plugin for ResourcesPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GlobalTextureAtlas::default())
+            .insert_resource(GlobalAudioSource::default())
             .insert_resource(CursorPosition(None))
             .add_systems(OnEnter(GameState::Loading), load_assets)
             .add_systems(
@@ -28,13 +34,14 @@ impl Plugin for ResourcesPlugin {
 }
 
 fn load_assets(
-    mut handle: ResMut<GlobalTextureAtlas>,
+    mut texture_atlas: ResMut<GlobalTextureAtlas>,
+    mut audio_source: ResMut<GlobalAudioSource>,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     println!("loading assets");
-    handle.image = Some(asset_server.load(SPRITE_SHEET_PATH));
+    texture_atlas.image = Some(asset_server.load(SPRITE_SHEET_PATH));
 
     let layout = TextureAtlasLayout::from_grid(
         UVec2::new(TILE_WIDTH, TILE_HEIGHT),
@@ -43,7 +50,9 @@ fn load_assets(
         None,
         None,
     );
-    handle.layout = Some(texture_atlas_layouts.add(layout));
+    texture_atlas.layout = Some(texture_atlas_layouts.add(layout));
+
+    audio_source.weapon_effect = Some(asset_server.load("audio/effects/attack.wav"));
 
     next_state.set(GameState::MainMenu);
 }

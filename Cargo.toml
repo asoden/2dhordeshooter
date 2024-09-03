@@ -4,11 +4,21 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.14.1"
+bevy ={ version = "0.14.1", features = ["wav"]}
 bevy_pancam = "0.13.0"
 kd-tree = "0.6.0"
 rand = "0.8.5"
 typenum = "1.17.0"
+# Compile low-severity logs out of native builds for performance.
+log = { version = "0.4", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
+# Compile low-severity logs out of web builds for performance.
+tracing = { version = "0.1", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
 
 [workspace]
 resolver = "2" # Important! wgpu/Bevy needs this!

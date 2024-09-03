@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 use std::time::Instant;
 
+use audio::SoundEffect;
 use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::time::Stopwatch;
@@ -91,6 +92,7 @@ fn handle_weapon_input(
     mut weapon_query: Query<(&Transform, &mut WeaponTimer), With<Weapon>>,
     mouse_button_input: Res<ButtonInput<MouseButton>>,
     handle: Res<GlobalTextureAtlas>,
+    audio: Res<GlobalAudioSource>,
 ) {
     if weapon_query.is_empty() {
         return;
@@ -132,6 +134,13 @@ fn handle_weapon_input(
                 GameEntity,
             ));
         }
+        commands.spawn((
+            AudioBundle {
+                source: audio.weapon_effect.clone().unwrap(),
+                settings: PlaybackSettings::DESPAWN,
+            },
+            SoundEffect,
+        ));
     }
 }
 

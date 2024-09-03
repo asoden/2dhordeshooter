@@ -1,3 +1,5 @@
+use audio::GameAudioPlugin;
+use bevy::audio::{AudioPlugin, Volume};
 use bevy::prelude::*;
 
 use animation::AnimationPlugin;
@@ -24,12 +26,19 @@ fn main() {
                         ..default()
                     }),
                     ..default()
+                })
+                .set(AudioPlugin {
+                    global_volume: GlobalVolume {
+                        volume: Volume::new(0.3),
+                    },
+                    ..default()
                 }),
         )
         .init_state::<GameState>()
         .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
         .insert_resource(Msaa::Off)
         .add_plugins(FollowCameraPlugin)
+        .add_plugins(GameAudioPlugin)
         .add_plugins(GuiPlugin)
         .add_plugins(WeaponPlugin)
         .add_plugins(AnimationPlugin)
