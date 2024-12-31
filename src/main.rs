@@ -36,7 +36,6 @@ fn main() {
         )
         .init_state::<GameState>()
         .insert_resource(ClearColor(Color::srgb(BG_COLOR.0, BG_COLOR.1, BG_COLOR.2)))
-        .insert_resource(Msaa::Off)
         .add_plugins(FollowCameraPlugin)
         .add_plugins(GameAudioPlugin)
         .add_plugins(GuiPlugin)

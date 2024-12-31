@@ -76,16 +76,16 @@ fn spawn_enemies(
     for _ in 0..enemy_spawn_count {
         let (x, y) = get_random_position_around(player_pos);
         commands.spawn((
-            SpriteBundle {
-                texture: handle.image.clone().unwrap(),
-                transform: Transform::from_translation(vec3(x, y, 1.0))
-                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+            Sprite {
+                image: handle.image.clone().unwrap(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: handle.layout.clone().unwrap(),
+                    index: 8,
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: handle.layout.clone().unwrap(),
-                index: 8,
-            },
+            Transform::from_translation(vec3(x, y, 1.0))
+                .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
             AnimationTimer(Timer::from_seconds(0.08, TimerMode::Repeating)),
             Enemy::default(),
             GameEntity,

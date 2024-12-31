@@ -28,15 +28,15 @@ fn init_world(
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     commands.spawn((
-        SpriteBundle {
-            texture: handle.image.clone().unwrap(),
-            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+        Sprite {
+            image: handle.image.clone().unwrap(),
+            texture_atlas: Some(TextureAtlas {
+                layout: handle.layout.clone().unwrap(),
+                index: 0,
+            }),
             ..default()
         },
-        TextureAtlas {
-            layout: handle.layout.clone().unwrap(),
-            index: 0,
-        },
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
         AnimationTimer(Timer::from_seconds(0.15, TimerMode::Repeating)),
         Player,
         Health(PLAYER_HEALTH),
@@ -45,15 +45,15 @@ fn init_world(
     ));
 
     commands.spawn((
-        SpriteBundle {
-            texture: handle.image.clone().unwrap(),
-            transform: Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+        Sprite {
+            image: handle.image.clone().unwrap(),
+            texture_atlas: Some(TextureAtlas {
+                layout: handle.layout.clone().unwrap(),
+                index: 14,
+            }),
             ..default()
         },
-        TextureAtlas {
-            layout: handle.layout.clone().unwrap(),
-            index: 14,
-        },
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
         Weapon,
         WeaponTimer(Stopwatch::new()),
         GameEntity,
@@ -68,16 +68,16 @@ fn spawn_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtla
         let x = rng.gen_range(-WORLD_WIDTH..WORLD_WIDTH);
         let y = rng.gen_range(-WORLD_HEIGHT..WORLD_HEIGHT);
         commands.spawn((
-            SpriteBundle {
-                texture: handle.image.clone().unwrap(),
-                transform: Transform::from_translation(vec3(x, y, 0.0))
-                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+            Sprite {
+                image: handle.image.clone().unwrap(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: handle.layout.clone().unwrap(),
+                    index: rng.gen_range(12..=13),
+                }),
                 ..default()
             },
-            TextureAtlas {
-                layout: handle.layout.clone().unwrap(),
-                index: rng.gen_range(12..=13),
-            },
+            Transform::from_translation(vec3(x, y, 0.0))
+                .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
             GameEntity,
         ));
     }

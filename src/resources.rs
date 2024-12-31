@@ -13,8 +13,8 @@ pub struct GlobalTextureAtlas {
 }
 
 #[derive(Resource, Default)]
-pub struct GlobalAudioSource{
-    pub weapon_effect: Option<Handle<AudioSource>>
+pub struct GlobalAudioSource {
+    pub weapon_effect: Option<Handle<AudioSource>>,
 }
 
 #[derive(Resource, Debug)]
@@ -70,6 +70,6 @@ fn update_cursor_position(
     let window = window_query.single();
     cursor_pos.0 = window
         .cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
-        .map(|ray| ray.origin.truncate());
+        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor).into())
+        .map(|ray| ray.unwrap().origin.truncate());
 }

@@ -34,20 +34,18 @@ impl Plugin for GuiPlugin {
 
 fn setup_main_menu(mut commands: Commands) {
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                align_items: AlignItems::Center,
-                justify_content: JustifyContent::Center,
-                ..default()
-            },
+        .spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
             ..default()
         })
         .with_children(|parent| {
             parent
-                .spawn(ButtonBundle {
-                    style: Style {
+                .spawn((
+                    Button,
+                    Node {
                         width: Val::Px(150.0),
                         height: Val::Px(65.0),
                         border: UiRect::all(Val::Px(5.0)),
@@ -55,17 +53,16 @@ fn setup_main_menu(mut commands: Commands) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    border_color: BorderColor(Color::BLACK),
-                    ..default()
-                })
+                    BorderColor(Color::BLACK),
+                ))
                 .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        "Play",
-                        TextStyle {
+                    parent.spawn((
+                        Text::new("Play"),
+                        TextFont {
                             font_size: 40.0,
-                            color: Color::BLACK,
                             ..default()
                         },
+                        TextColor(Color::BLACK),
                     ));
                 });
         })
@@ -75,23 +72,20 @@ fn setup_main_menu(mut commands: Commands) {
 fn spawn_debug_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn((
-            NodeBundle {
-                style: Style {
-                    width: Val::Percent(100.0),
-                    height: Val::Percent(100.0),
-                    align_items: AlignItems::Start,
-                    justify_content: JustifyContent::Start,
-                    flex_direction: FlexDirection::Column,
-                    ..default()
-                },
+            Node {
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                align_items: AlignItems::Start,
+                justify_content: JustifyContent::Start,
+                flex_direction: FlexDirection::Column,
                 ..default()
             },
             GameEntity,
         ))
         .with_children(|parent| {
             parent
-                .spawn(NodeBundle {
-                    style: Style {
+                .spawn((
+                    Node {
                         width: Val::Px(345.0),
                         height: Val::Px(125.0),
                         align_items: AlignItems::Center,
@@ -101,19 +95,17 @@ fn spawn_debug_text(mut commands: Commands, asset_server: Res<AssetServer>) {
                         margin: UiRect::px(10.0, 10.0, 10.0, 0.0),
                         ..default()
                     },
-                    background_color: BackgroundColor::from(Color::BLACK.with_alpha(0.9)),
-                    ..default()
-                })
+                    BackgroundColor::from(Color::BLACK.with_alpha(0.9)),
+                ))
                 .with_children(|parent| {
                     parent.spawn((
-                        TextBundle::from_section(
-                            "Hello Bevy!",
-                            TextStyle {
-                                font: asset_server.load("monogram.ttf"),
-                                font_size: 40.0,
-                                color: Color::WHITE,
-                            },
-                        ),
+                        Text::new("Hello Bevy!"),
+                        TextFont {
+                            font: asset_server.load("monogram.ttf"),
+                            font_size: 40.0,
+                            ..default()
+                        },
+                        TextColor(Color::WHITE),
                         DebugText,
                     ));
                 });
@@ -135,8 +127,7 @@ fn update_debug_text(
     let mut text = query.single_mut();
     if let Some(fps) = diagnostics.get(&FrameTimeDiagnosticsPlugin::FPS) {
         if let Some(value) = fps.smoothed() {
-            text.sections[0].value =
-                format!("FPS: {value:.2}\nEnemies: {num_enemies}\nHealth: {player_health}");
+            **text = format!("FPS: {value:.2}\nEnemies: {num_enemies}\nHealth: {player_health}");
         }
     }
 }
@@ -146,11 +137,8 @@ fn handle_main_menu_buttons(
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     for interaction in interaction_query.iter() {
-        match interaction {
-            Interaction::Pressed => {
-                next_state.set(GameState::GameInit);
-            }
-            _ => {}
+        if interaction == &Interaction::Pressed {
+            next_state.set(GameState::GameInit);
         }
     }
 }

@@ -38,30 +38,34 @@ fn animation_timer_tick(
 }
 
 fn animate_player(
-    mut player_query: Query<(&mut TextureAtlas, &PlayerState, &AnimationTimer), With<Player>>,
+    mut player_query: Query<(&mut Sprite, &PlayerState, &AnimationTimer), With<Player>>,
 ) {
     if player_query.is_empty() {
         return;
     }
 
-    let (mut atlas, player_state, timer) = player_query.single_mut();
+    let (mut sprite, player_state, timer) = player_query.single_mut();
     if timer.just_finished() {
         let base_sprite_index = match player_state {
             PlayerState::Idle => 0,
             PlayerState::Moving => 4,
         };
-        atlas.index = base_sprite_index + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+        if let Some(atlas) = &mut sprite.texture_atlas {
+            atlas.index = base_sprite_index + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+        }
     }
 }
 
-fn animate_enemy(mut enemy_query: Query<(&mut TextureAtlas, &AnimationTimer), With<Enemy>>) {
+fn animate_enemy(mut enemy_query: Query<(&mut Sprite, &AnimationTimer), With<Enemy>>) {
     if enemy_query.is_empty() {
         return;
     }
 
-    for (mut atlas, timer) in enemy_query.iter_mut() {
+    for (mut sprite, timer) in enemy_query.iter_mut() {
         if timer.just_finished() {
-            atlas.index = 8 + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+            if let Some(atlas) = &mut sprite.texture_atlas {
+                atlas.index = 8 + (atlas.index + 1) % SPRITE_SHEET_WIDTH as usize;
+            }
         }
     }
 }

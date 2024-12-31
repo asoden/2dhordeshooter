@@ -118,16 +118,16 @@ fn handle_weapon_input(
                 bullet_direction.z,
             );
             commands.spawn((
-                SpriteBundle {
-                    texture: handle.image.clone().unwrap(),
-                    transform: Transform::from_translation(vec3(weapon_pos.x, weapon_pos.y, 1.0))
-                        .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
+                Sprite {
+                    image: handle.image.clone().unwrap(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: handle.layout.clone().unwrap(),
+                        index: 15,
+                    }),
                     ..default()
                 },
-                TextureAtlas {
-                    layout: handle.layout.clone().unwrap(),
-                    index: 15,
-                },
+                Transform::from_translation(vec3(weapon_pos.x, weapon_pos.y, 1.0))
+                    .with_scale(Vec3::splat(SPRITE_SCALE_FACTOR)),
                 Bullet,
                 BulletDirection(dir),
                 SpawnInstant(Instant::now()),
@@ -135,10 +135,7 @@ fn handle_weapon_input(
             ));
         }
         commands.spawn((
-            AudioBundle {
-                source: audio.weapon_effect.clone().unwrap(),
-                settings: PlaybackSettings::DESPAWN,
-            },
+            AudioPlayer(audio.weapon_effect.clone().unwrap()),
             SoundEffect,
         ));
     }
