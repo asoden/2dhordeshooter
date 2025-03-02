@@ -63,16 +63,16 @@ fn init_world(
 }
 
 fn spawn_world_decorations(mut commands: Commands, handle: Res<GlobalTextureAtlas>) {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     for _ in 0..NUM_WORLD_DECORATIONS {
-        let x = rng.gen_range(-WORLD_WIDTH..WORLD_WIDTH);
-        let y = rng.gen_range(-WORLD_HEIGHT..WORLD_HEIGHT);
+        let x = rng.random_range(-WORLD_WIDTH..WORLD_WIDTH);
+        let y = rng.random_range(-WORLD_HEIGHT..WORLD_HEIGHT);
         commands.spawn((
             Sprite {
                 image: handle.image.clone().unwrap(),
                 texture_atlas: Some(TextureAtlas {
                     layout: handle.layout.clone().unwrap(),
-                    index: rng.gen_range(12..=13),
+                    index: rng.random_range(12..=13),
                 }),
                 ..default()
             },

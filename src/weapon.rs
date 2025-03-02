@@ -106,15 +106,15 @@ fn handle_weapon_input(
         return;
     }
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     let bullet_direction = weapon_transform.local_x();
     if weapon_timer.0.elapsed_secs() >= BULLET_SPAWN_INTERVAL {
         weapon_timer.0.reset();
 
         for _ in 0..NUM_BULLETS_PER_SHOT {
             let dir = vec3(
-                bullet_direction.x + rng.gen_range(-0.5..0.5),
-                bullet_direction.y + rng.gen_range(-0.5..0.5),
+                bullet_direction.x + rng.random_range(-0.5..0.5),
+                bullet_direction.y + rng.random_range(-0.5..0.5),
                 bullet_direction.z,
             );
             commands.spawn((
